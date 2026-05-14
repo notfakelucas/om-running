@@ -55,13 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function productCardHTML(p) {
   const discount = window.getDiscount(p.price, p.original);
-  const variants = ["neutral", "warm", "cool", "bright", "mono"];
-  const variant = variants[Math.abs(p.id.charCodeAt(2) + p.id.charCodeAt(p.id.length - 1)) % variants.length];
   return `
     <a class="product-card" href="product.html?id=${p.id}">
       <div class="media">
         ${p.badge ? `<span class="badge">${p.badge}</span>` : ""}
-        ${window.shoeSVG(variant)}
+        <img src="${assetsPath()}assets/images/${p.image}" alt="${p.name}" loading="lazy" />
       </div>
       <h3>${p.name}</h3>
       <div class="price">
@@ -70,6 +68,10 @@ function productCardHTML(p) {
         <span class="discount">-${discount}%</span>
       </div>
     </a>`;
+}
+
+function assetsPath() {
+  return location.pathname.includes("/pages/") ? "../" : "";
 }
 
 function hydrateProductDetail(root) {
@@ -83,12 +85,12 @@ function hydrateProductDetail(root) {
   const sizes = [38, 39, 40, 41, 42, 43, 44, 45, 46];
   root.innerHTML = `
     <nav class="breadcrumb">
-      <a href="index.html">Home</a> /
-      <a href="${p.gender === "men" ? "men.html" : "women.html"}">${p.gender === "men" ? "Men's" : "Women's"}</a> /
+      <a href="index.html">Inicio</a> /
+      <a href="${p.gender === "men" ? "men.html" : "women.html"}">${p.gender === "men" ? "Hombre" : "Mujer"}</a> /
       <span>${p.name}</span>
     </nav>
     <div class="product-detail">
-      <div class="product-gallery">${window.shoeSVG("neutral")}</div>
+      <div class="product-gallery"><img src="assets/images/${p.image}" alt="${p.name}" /></div>
       <div class="product-info">
         <h1>${p.name}</h1>
         <div class="price-block">
@@ -98,7 +100,7 @@ function hydrateProductDetail(root) {
         </div>
         <p class="description">${p.description}</p>
 
-        <label style="font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Size (EU)</label>
+        <label style="font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Talla (EU)</label>
         <div class="size-grid" role="radiogroup">
           ${sizes
             .map(
@@ -111,14 +113,14 @@ function hydrateProductDetail(root) {
             .join("")}
         </div>
 
-        <button class="btn btn-block" data-add-cart="${p.id}">Add to cart</button>
-        <a href="cart.html" class="btn btn-outline btn-block" style="margin-top:0.5rem">Go to cart</a>
+        <button class="btn btn-block" data-add-cart="${p.id}">Añadir al carrito</button>
+        <a href="cart.html" class="btn btn-outline btn-block" style="margin-top:0.5rem">Ir al carrito</a>
 
         <div class="product-meta">
-          <span>★ Free shipping over €60</span>
-          <span>↺ 14-day returns</span>
-          <span>✓ Cash on delivery available</span>
-          <span>⚡ Ships in 24–48h</span>
+          <span>★ Envío gratis a partir de 60 €</span>
+          <span>↺ Devoluciones en 14 días</span>
+          <span>✓ Pago contra reembolso disponible</span>
+          <span>⚡ Envío en 24–48 h</span>
         </div>
       </div>
     </div>
@@ -134,9 +136,9 @@ function hydrateCart(root) {
   if (!items.length) {
     root.innerHTML = `
       <div class="cart-empty">
-        <h2>Your cart is empty</h2>
-        <p style="margin:1rem 0 2rem">Discover the latest On running shoes.</p>
-        <a class="btn" href="index.html">Continue shopping</a>
+        <h2>Tu carrito está vacío</h2>
+        <p style="margin:1rem 0 2rem">Descubre las últimas zapatillas en oferta.</p>
+        <a class="btn" href="index.html">Seguir comprando</a>
       </div>`;
     return;
   }
@@ -147,10 +149,10 @@ function hydrateCart(root) {
       const lineTotal = p.price * item.qty;
       return `
       <div class="cart-row" data-row="${p.id}|${item.size || ""}">
-        <div class="thumb">${window.shoeSVG("neutral")}</div>
+        <div class="thumb"><img src="assets/images/${p.image}" alt="${p.name}" /></div>
         <div>
           <h4>${p.name}</h4>
-          <div class="meta">Size EU ${item.size || "—"} · ${window.formatPrice(p.price)}</div>
+          <div class="meta">Talla EU ${item.size || "—"} · ${window.formatPrice(p.price)}</div>
           <div class="qty-control">
             <button data-qty="-1">−</button>
             <span>${item.qty}</span>
@@ -173,12 +175,12 @@ function hydrateCart(root) {
     <div class="cart-layout">
       <div class="cart-items">${rowsHTML}</div>
       <aside class="cart-summary">
-        <h3>Order summary</h3>
+        <h3>Resumen del pedido</h3>
         <div class="summary-row"><span>Subtotal</span><span>${window.formatPrice(subtotal)}</span></div>
-        <div class="summary-row"><span>Shipping</span><span>${shipping === 0 ? "Free" : window.formatPrice(shipping)}</span></div>
+        <div class="summary-row"><span>Envío</span><span>${shipping === 0 ? "Gratis" : window.formatPrice(shipping)}</span></div>
         <div class="summary-row total"><span>Total</span><span>${window.formatPrice(total)}</span></div>
-        <button class="btn btn-block" style="margin-top:1rem" data-checkout>Checkout</button>
-        <a href="index.html" class="btn btn-outline btn-block" style="margin-top:0.5rem">Continue shopping</a>
+        <button class="btn btn-block" style="margin-top:1rem" data-checkout>Finalizar compra</button>
+        <a href="index.html" class="btn btn-outline btn-block" style="margin-top:0.5rem">Seguir comprando</a>
       </aside>
     </div>
   `;

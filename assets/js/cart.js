@@ -34,7 +34,7 @@ function addToCart(productId, size = null, qty = 1) {
     cart.push({ id: productId, size, qty });
   }
   writeCart(cart);
-  showFlash("Added to cart");
+  showFlash("Añadido al carrito");
 }
 
 function removeFromCart(productId, size = null) {
