@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function productCardHTML(p) {
   const discount = window.getDiscount(p.price, p.original);
   return `
-    <a class="product-card" href="product.html?id=${p.id}">
+    <a class="product-card" href="${assetsPath()}product.html?id=${p.id}">
       <div class="media">
         ${p.badge ? `<span class="badge">${p.badge}</span>` : ""}
         <img src="${assetsPath()}assets/images/${p.image}" alt="${p.name}" loading="lazy" />
@@ -78,27 +78,50 @@ function hydrateProductDetail(root) {
   const id = new URLSearchParams(location.search).get("id");
   const p = id ? window.getProduct(id) : null;
   if (!p) {
-    root.innerHTML = `<div class="text-center" style="padding:4rem 1rem"><h2>Product not found</h2><p><a class="btn" href="index.html">Back to home</a></p></div>`;
+    root.innerHTML = `<div class="text-center" style="padding:4rem 1rem"><h2>Producto no encontrado</h2><p><a class="btn" href="index.html">Volver al inicio</a></p></div>`;
     return;
   }
   const discount = window.getDiscount(p.price, p.original);
-  const sizes = [38, 39, 40, 41, 42, 43, 44, 45, 46];
+  const sizes = [39, 40, 41, 42, 43, 44, 45, 46, 47];
+  const colors = ["Negro / Blanco", "Medianoche / Blanco"];
+  const collectionLabel = p.gender === "men" ? "ON Running Men's" : "ON Running Women's";
+  const collectionHref = p.gender === "men" ? "men.html" : "women.html";
   root.innerHTML = `
     <nav class="breadcrumb">
-      <a href="index.html">Inicio</a> /
-      <a href="${p.gender === "men" ? "men.html" : "women.html"}">${p.gender === "men" ? "Hombre" : "Mujer"}</a> /
+      <a href="index.html">ON Running</a> /
+      <a href="${collectionHref}">${collectionLabel}</a> /
       <span>${p.name}</span>
     </nav>
     <div class="product-detail">
-      <div class="product-gallery"><img src="assets/images/${p.image}" alt="${p.name}" /></div>
+      <div class="product-gallery">
+        ${p.badge ? `<span class="badge" style="position:absolute;margin:1.25rem;background:var(--color-sale);color:#fff;font-size:0.75rem;font-weight:700;padding:0.3rem 0.6rem;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase">${p.badge}</span>` : ""}
+        <img src="assets/images/${p.image}" alt="${p.name}" />
+      </div>
       <div class="product-info">
         <h1>${p.name}</h1>
+        <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;font-size:0.9rem;color:var(--color-muted)">
+          <span style="color:#f4a300">★★★★★</span>
+          <span>4,9/5 · 148.942 reseñas verificadas</span>
+        </div>
         <div class="price-block">
           <span class="price-current">${window.formatPrice(p.price)}</span>
           <span class="price-original">${window.formatPrice(p.original)}</span>
           <span class="discount-tag">-${discount}%</span>
         </div>
         <p class="description">${p.description}</p>
+
+        <label style="font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Color</label>
+        <div class="size-grid" role="radiogroup" style="grid-template-columns:1fr 1fr;margin:0.6rem 0 1.25rem">
+          ${colors
+            .map(
+              (c, i) => `
+            <label>
+              <input type="radio" name="color" value="${c}" ${i === 0 ? "checked" : ""}>
+              <span>${c}</span>
+            </label>`,
+            )
+            .join("")}
+        </div>
 
         <label style="font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Talla (EU)</label>
         <div class="size-grid" role="radiogroup">
@@ -113,14 +136,14 @@ function hydrateProductDetail(root) {
             .join("")}
         </div>
 
-        <button class="btn btn-block" data-add-cart="${p.id}">Añadir al carrito</button>
+        <button class="btn btn-block" data-add-cart="${p.id}">Agregar al carrito</button>
         <a href="cart.html" class="btn btn-outline btn-block" style="margin-top:0.5rem">Ir al carrito</a>
 
         <div class="product-meta">
-          <span>★ Envío gratis a partir de 60 €</span>
+          <span>🚚 Envío rápido: entrega en 24–48 h</span>
+          <span>💰 Pago contra reembolso disponible</span>
           <span>↺ Devoluciones en 14 días</span>
-          <span>✓ Pago contra reembolso disponible</span>
-          <span>⚡ Envío en 24–48 h</span>
+          <span>✓ Garantía de 60 días</span>
         </div>
       </div>
     </div>
@@ -137,7 +160,7 @@ function hydrateCart(root) {
     root.innerHTML = `
       <div class="cart-empty">
         <h2>Tu carrito está vacío</h2>
-        <p style="margin:1rem 0 2rem">Descubre las últimas zapatillas en oferta.</p>
+        <p style="margin:1rem 0 2rem">¿Tienes una cuenta? <a href="#" style="text-decoration:underline">Inicia sesión</a> para finalizar la compra más rápido.</p>
         <a class="btn" href="index.html">Seguir comprando</a>
       </div>`;
     return;
@@ -161,7 +184,7 @@ function hydrateCart(root) {
         </div>
         <div class="actions">
           <div class="price">${window.formatPrice(lineTotal)}</div>
-          <a href="#" class="remove" data-remove>Remove</a>
+          <a href="#" class="remove" data-remove>Eliminar</a>
         </div>
       </div>`;
     })
@@ -175,12 +198,13 @@ function hydrateCart(root) {
     <div class="cart-layout">
       <div class="cart-items">${rowsHTML}</div>
       <aside class="cart-summary">
-        <h3>Resumen del pedido</h3>
+        <h3>Total a pagar al recibir</h3>
         <div class="summary-row"><span>Subtotal</span><span>${window.formatPrice(subtotal)}</span></div>
         <div class="summary-row"><span>Envío</span><span>${shipping === 0 ? "Gratis" : window.formatPrice(shipping)}</span></div>
-        <div class="summary-row total"><span>Total</span><span>${window.formatPrice(total)}</span></div>
-        <button class="btn btn-block" style="margin-top:1rem" data-checkout>Finalizar compra</button>
+        <div class="summary-row total"><span>Total</span><span>${window.formatPrice(total)} EUR</span></div>
+        <button class="btn btn-block" style="margin-top:1rem" data-checkout>Confirmar pedido</button>
         <a href="index.html" class="btn btn-outline btn-block" style="margin-top:0.5rem">Seguir comprando</a>
+        <p style="font-size:0.8rem;color:var(--color-muted);margin-top:1rem;line-height:1.5">Pago contra reembolso disponible. Entrega en 24–48 h.</p>
       </aside>
     </div>
   `;
